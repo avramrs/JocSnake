@@ -1,8 +1,9 @@
 #pragma once
-unsigned score = 0;
+unsigned long long score = 0;
 sf::RectangleShape food;
 sf::RectangleShape item;
 short itemType;
-short itemTimer=0;
+unsigned int itemTimer=0;
+unsigned int powerUpTimer = 0;
 bool set = true;
 bool itemSet = false;
