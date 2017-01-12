@@ -18,3 +18,6 @@ unsigned int timer = 0;
 bool menu = true;
 bool set = true;
 bool itemSet = false;
+bool scoreboard = false;
+bool scoreboardOpened = false;
+bool shop = false;

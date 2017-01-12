@@ -5,14 +5,18 @@
 #include "Snake.h"
 #include "Items.h"
 using namespace std;
-ifstream scoreboard("scoreboard.txt");
 
+
+fstream scoreboardFile;
+ifstream gsaf;
 short  HUD_SPACE = 50;
+
 int main()
 {
 	short WIDTH = 32;
 	short HEIGHT = 24;
 	short timeSet = 175;							//time== 175 normal//time==100 fast//time==250 slow
+
 
 	sf::RenderWindow window(sf::VideoMode(800, 600 + HUD_SPACE), "Snake");						//Window
 	window.setVerticalSyncEnabled(true);
@@ -50,24 +54,39 @@ int main()
 	scoreText.setFillColor(sf::Color::White);
 	scoreText.setPosition(25, 10);
 	/////////////MENU///////////
-	sf::Text singleplayer("SINGLEPLAYER", gameFont);
-	sf::Text multiplayer("MULTIPLAYER", gameFont);
-	sf::Text scoreboard("SCOREBOARD", gameFont);
-	sf::Text shop("SHOP", gameFont);
-	sf::Text exit("EXIT", gameFont);
-	singleplayer.setFillColor(sf::Color::White);
-	multiplayer.setFillColor(sf::Color::White);
-	scoreboard.setFillColor(sf::Color::White);
-	shop.setFillColor(sf::Color::White);
-	exit.setFillColor(sf::Color::White);
-	singleplayer.setPosition(220,200 );
-	multiplayer.setPosition(226, 250);
-	scoreboard.setPosition(250, 300);
-	shop.setPosition(329, 350);
-	exit.setPosition(335, 400);
+	sf::Text singleplayerText("SINGLEPLAYER", gameFont);
+	sf::Text multiplayerText("MULTIPLAYER", gameFont);
+	sf::Text scoreboardText("SCOREBOARD", gameFont);
+	sf::Text shopText("SHOP", gameFont);
+	sf::Text exitText("EXIT", gameFont);
+	singleplayerText.setFillColor(sf::Color::White);
+	multiplayerText.setFillColor(sf::Color::White);
+	scoreboardText.setFillColor(sf::Color::White);
+	shopText.setFillColor(sf::Color::White);
+	exitText.setFillColor(sf::Color::White);
+	singleplayerText.setPosition(220,200 );
+	multiplayerText.setPosition(226, 250);
+	scoreboardText.setPosition(250, 300);
+	shopText.setPosition(329, 350);
+	exitText.setPosition(335, 400);
+	////////////////////SCOREBOARD/////////
+	string line;
+	sf::Text scoreboardFileText("", gameFont);
+	scoreboardFileText.setFillColor(sf::Color::White);
+	scoreboardFileText.setPosition(100, 50);
+	short linePosition = 50;
+	///////////////////??????????/////////////
+	sf::Text r3a0roe("", gameFont);
+	r3a0roe.setFillColor(sf::Color::Yellow);
+	r3a0roe.setPosition(350, 300);
+	gsaf.open("asdf.txt");
+	getline(gsaf, line);
+	r3a0roe.setString(line);
+	gsaf.close();
 	////////////////////////////////////////////////////////////MAIN_LOOP////////////////////////////////////////////////////////////
 	while (window.isOpen())
 	{
+//////////////////////////////////////////////////////MENU//////////////////////////////////////////////////
 		if (menu)
 		{
 			sf::Event event;
@@ -97,12 +116,14 @@ int main()
 					}
 					case 2:
 					{
-
+						scoreboard = 1;
 						menu = 0;
 						break;
 					}
 					case 3:
 					{
+						shop = 1;
+						menu = 0;
 						break;
 					}
 					case 4:
@@ -117,46 +138,89 @@ int main()
 			{
 			case 0:
 			{
-				singleplayer.setFillColor(sf::Color::Yellow);
-				multiplayer.setFillColor(sf::Color::White);
+				singleplayerText.setFillColor(sf::Color::Yellow);
+				multiplayerText.setFillColor(sf::Color::White);
 				break;
 			}
 			case 1:
 			{
-				multiplayer.setFillColor(sf::Color::Yellow);
-				singleplayer.setFillColor(sf::Color::White);
-				scoreboard.setFillColor(sf::Color::White);
+				multiplayerText.setFillColor(sf::Color::Yellow);
+				singleplayerText.setFillColor(sf::Color::White);
+				scoreboardText.setFillColor(sf::Color::White);
 				break;
 			}
 			case 2:
 			{
-				multiplayer.setFillColor(sf::Color::White);
-				scoreboard.setFillColor(sf::Color::Yellow);
-				shop.setFillColor(sf::Color::White);
+				multiplayerText.setFillColor(sf::Color::White);
+				scoreboardText.setFillColor(sf::Color::Yellow);
+				shopText.setFillColor(sf::Color::White);
 				break;
 			}
 			case 3:
 			{
-				scoreboard.setFillColor(sf::Color::White);
-				shop.setFillColor(sf::Color::Yellow);
-				exit.setFillColor(sf::Color::White);
+				scoreboardText.setFillColor(sf::Color::White);
+				shopText.setFillColor(sf::Color::Yellow);
+				exitText.setFillColor(sf::Color::White);
 				break;
 			}
 			case 4:
 			{
-				shop.setFillColor(sf::Color::White);
-				exit.setFillColor(sf::Color::Yellow);
+				shopText.setFillColor(sf::Color::White);
+				exitText.setFillColor(sf::Color::Yellow);
 				break;
 			}
 			}
 			window.clear();
-			window.draw(singleplayer);
-			window.draw(multiplayer);
-			window.draw(scoreboard);
-			window.draw(shop);
-			window.draw(exit);
+			window.draw(singleplayerText);
+			window.draw(multiplayerText);
+			window.draw(scoreboardText);
+			window.draw(shopText);
+			window.draw(exitText);
 			window.display();
 		}
+////////////////////////////////////////////////SCOREBOARD//////////////////////////////////////////////////
+		else if (scoreboard)
+		{
+			if (scoreboardOpened == false) 
+			{
+				scoreboardFile.open("scoreboard.txt");
+				window.clear();
+				if (scoreboardFile.is_open())
+				{
+					while (getline(scoreboardFile, line))
+					{
+						scoreboardFileText.setString(line);
+						window.draw(scoreboardFileText);
+						linePosition += 50;
+						scoreboardFileText.setPosition(100, linePosition);
+					}
+					scoreboardOpened = 1;
+					scoreboardFileText.setString("PRESS BACKSPACE TO CONTINUE");
+					scoreboardFileText.setPosition(20, linePosition);
+					scoreboardFileText.setFillColor(sf::Color::Red);
+					window.draw(scoreboardFileText);
+				}
+				scoreboardFile.close();
+				scoreboardFile.clear();
+				window.display();
+			}
+			sf::Event event;
+			while (window.pollEvent(event))
+			{
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
+				{
+					scoreboard = 0;
+					menu = 1;
+					scoreboardOpened = 0;
+					linePosition= 50;
+					scoreboardFileText.setFillColor(sf::Color::White);
+					scoreboardFileText.setPosition(100, linePosition);
+				}
+			}
+		}
+///////////////////////////////////////////////////////////SINGLEPLAYER/////////////////////////////////////////////////
 		else if(alive)
 	{
 		elapsed = clock.getElapsedTime();
@@ -344,6 +408,23 @@ int main()
 
 		window.draw(food);
 		window.display();
+	}
+	else if (shop)
+	{
+		window.clear();
+		window.draw(r3a0roe);
+		window.display();
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
+			{
+				shop = 0;
+				menu = 1;
+			}
+		}
 	}
 }
 }

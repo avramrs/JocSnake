@@ -160,6 +160,7 @@
     <ClInclude Include="Snake.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="asdf.txt" />
     <Text Include="scoreboard.txt" />
   </ItemGroup>
   <ItemGroup>

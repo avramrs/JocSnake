@@ -31,6 +31,9 @@
     <Text Include="scoreboard.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="asdf.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Font Include="8-BIT WONDER.TTF" />
