@@ -3,6 +3,7 @@
 int dirX = 1, dirY = 0;
 int tailLen = 0;
 float SCALE = 25.0f;
+bool alive = false;
 sf::RectangleShape snakeHead;
 sf::RectangleShape tail[768];
 void snakeMove();
