@@ -21,3 +21,5 @@ bool itemSet = false;
 bool scoreboard = false;
 bool scoreboardOpened = false;
 bool shop = false;
+bool multiplayer = false;
+short winner = 0;

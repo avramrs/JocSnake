@@ -2,6 +2,7 @@
 #include <random>
 #include <iostream>
 #include <fstream>
+#include <Windows.h>
 #include "Snake.h"
 #include "Items.h"
 using namespace std;
@@ -69,6 +70,10 @@ int main()
 	scoreboardText.setPosition(250, 300);
 	shopText.setPosition(329, 350);
 	exitText.setPosition(335, 400);
+	///////////////////MULTIPLAYER/////////////////
+	enemySnakeHead.setSize(sf::Vector2f(SCALE, SCALE));
+	enemySnakeHead.setPosition(800, 600);
+	enemySnakeHead.setFillColor(sf::Color::Red);
 	////////////////////SCOREBOARD/////////
 	string line;
 	sf::Text scoreboardFileText("", gameFont);
@@ -87,7 +92,7 @@ int main()
 	while (window.isOpen())
 	{
 //////////////////////////////////////////////////////MENU//////////////////////////////////////////////////
-		if (menu)
+		if (menu==true)
 		{
 			sf::Event event;
 			while (window.pollEvent(event))
@@ -112,6 +117,9 @@ int main()
 					case 1:
 					{
 						menu = 0;
+						alive = 1;
+						multiplayer = 1;
+						enemySnakeHead.setPosition(775, 575);
 						break;
 					}
 					case 2:
@@ -179,7 +187,7 @@ int main()
 			window.display();
 		}
 ////////////////////////////////////////////////SCOREBOARD//////////////////////////////////////////////////
-		else if (scoreboard)
+		else if (scoreboard==true)
 		{
 			if (scoreboardOpened == false) 
 			{
@@ -221,10 +229,9 @@ int main()
 			}
 		}
 ///////////////////////////////////////////////////////////SINGLEPLAYER/////////////////////////////////////////////////
-		else if(alive)
+		else if(alive==true)
 	{
 		elapsed = clock.getElapsedTime();
-
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -248,7 +255,29 @@ int main()
 				dirX = 0;
 				dirY = 1;
 			}
-
+			if (multiplayer==true)
+			{
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && dirX2 != 1)
+				{
+					dirX2 = -1;
+					dirY2 = 0;
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && dirX2 != -1)
+				{
+					dirX2 = 1;
+					dirY2 = 0;
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && dirY2 != 1)                     //DIRECTION
+				{
+					dirX2 = 0;
+					dirY2 = -1;
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && dirY2 != -1)
+				{
+					dirX2 = 0;
+					dirY2 = 1;
+				}
+			}
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
@@ -292,7 +321,10 @@ int main()
 			if (itemTimer > 30)
 			{
 				itemSet = true;
-				itemType = rand() % 3;
+				if (multiplayer == true)
+					itemType = rand() % 2;
+				else
+					itemType = rand() % 3;
 				item.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
 				set = false;
 				while (set != true)
@@ -309,7 +341,6 @@ int main()
 
 						}
 					}
-					std::cout << "Set";
 				}
 			}
 		}
@@ -317,6 +348,7 @@ int main()
 
 		if (food.getGlobalBounds() == snakeHead.getGlobalBounds())
 		{
+			if(multiplayer==false)
 			score += 100;
 
 			food.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
@@ -337,6 +369,28 @@ int main()
 			set = true;
 			tailLen++;
 		}
+		if(multiplayer==true)
+		if (food.getGlobalBounds() == enemySnakeHead.getGlobalBounds())
+		{
+			food.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
+			while (set != false)
+			{
+				set = false;
+
+				for (int i = 0; i < tailLen2 - 1; i++)
+				{
+					if (food.getGlobalBounds() == enemyTail[i].getGlobalBounds())
+					{
+						food.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
+						set = true;
+
+					}
+				}
+			}
+			set = true;
+			tailLen2++;
+		}
+
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))							//CHEAT
 		{
@@ -360,28 +414,50 @@ int main()
 		{
 			itemTimer++;
 			std::cout << itemTimer << std::endl;
-			snakeMove();
-			snakeOutOfBounds();
+			snakeMove(multiplayer);
+			snakeOutOfBounds(multiplayer);
+			gameTimer = 0;
+			////////////////////////////////////////DEATH//////////////////////////////////////////////
 			for (int i = 0; i < tailLen; i++)
 			{
 				if (tail[i].getGlobalBounds() == snakeHead.getGlobalBounds())
 				{
 					alive = 0;
 					menu = 1;
-					score = 0;
-					timer = 0;
-					snakeHead.setPosition(0, HUD_SPACE);
-					tailLen = 0;
-					dirX = 1;
-					dirY = 0;
-					itemSet = false;
-					item.setPosition(-10, -10);
-					itemTimer = 0;
+					winner = 2;//player2 Wins;
+				}
+				if (enemySnakeHead.getGlobalBounds() == tail[i].getGlobalBounds())
+				{
+					winner = 1;//player1 Wins;
+					alive = 0;
+					menu = 1;
 				}
 			}
-			gameTimer = 0;
+			if (multiplayer)
+			{
+				for (int i = 0; i < tailLen2; i++)
+				{
+					if (enemyTail[i].getGlobalBounds() == enemySnakeHead.getGlobalBounds())
+					{
+						alive = 0;
+						menu = 1;
+						winner = 1;//player1 Wins;
+					}
+					if (snakeHead.getGlobalBounds() == enemyTail[i].getGlobalBounds())
+					{
+						winner = 2;//player2 Wins;
+						alive = 0;
+						menu = 1;
+					}
+				}
+			}
+			if (snakeHead.getGlobalBounds() == enemySnakeHead.getGlobalBounds())
+			{
+				alive = 0;
+				menu = 1;
+				winner = 3;
+			}
 		}
-
 		////////////////////////////////////////////////////////////DRAW////////////////////////////////////////////////////////////		
 		scoreString = to_string(score);
 		scoreValue.setString(scoreString);
@@ -389,9 +465,12 @@ int main()
 		timerValue.setString(timerString);
 		window.clear();
 		window.draw(HUD);
-		window.draw(scoreText);
-		window.draw(scoreValue);
-		window.draw(timerValue);
+		if (multiplayer == false && winner==0)
+		{
+			window.draw(scoreText);
+			window.draw(scoreValue);
+		}
+			window.draw(timerValue);
 		for (int i = 2; i <= 66; i++)
 			for (int j = 0; j <= 80; j++)
 			{
@@ -403,12 +482,67 @@ int main()
 			window.draw(tail[i]);
 		}
 		window.draw(snakeHead);
+		if (multiplayer == true)
+		{
+			for (int i = 0; i < tailLen2; i++)
+			{
+				window.draw(enemyTail[i]);
+			}
+			window.draw(enemySnakeHead);
+		}
 		if (itemSet == true)
 			window.draw(item);
+		if (winner != 0)
+		{
+			if (winner == 1)
+			{
+				sf::Text PWins("PLAYER 1 WINS", gameFont);
+				PWins.setPosition(25, 10);
+				window.draw(PWins);
+			}
+			if (winner == 2)
+			{
+				sf::Text PWins("PLAYER 2 WINS", gameFont);
+				PWins.setPosition(25, 10);
+				window.draw(PWins);
+			}
+			if (winner == 3)
+			{
+				sf::Text PWins("NOBODY WINS", gameFont);
+				PWins.setPosition(25, 10);
+				window.draw(PWins);
+			}
 
+		}
 		window.draw(food);
 		window.display();
+		if (winner != 0)
+		{
+			Sleep(5000);
+			winner = 0;
+		}
+		if (alive == 0)
+		{
+			score = 0;
+			timer = 0;
+			snakeHead.setPosition(0, HUD_SPACE);
+			tailLen = 0;
+			dirX = 1;
+			dirY = 0;
+			itemSet = false;
+			item.setPosition(-10, -10);
+			itemTimer = 0;
+			if (multiplayer == true)
+			{
+				tailLen2 = 0;
+				dirX2 = -1;
+				dirY2 = 0;
+				multiplayer = false;
+				enemySnakeHead.setPosition(800, 600);
+			}
+		}
 	}
+/////////////////////????////////////////////////////
 	else if (shop)
 	{
 		window.clear();
@@ -429,7 +563,7 @@ int main()
 }
 }
 ////////////////////////////////////////////////////////////FUNCTIONS////////////////////////////////////////////////////////////
-void snakeMove()
+void snakeMove(bool multiplayer)
 {
 	for (int i = tailLen - 2; i >= 0; i--)
 	{
@@ -437,8 +571,17 @@ void snakeMove()
 	}
 	tail[0] = snakeHead;
 	snakeHead.move(dirX*SCALE, dirY*SCALE);
+	if (multiplayer == true);
+	{
+		for (int i = tailLen2 - 2; i >= 0; i--)
+		{
+			enemyTail[i + 1] = enemyTail[i];
+		}
+		enemyTail[0] = enemySnakeHead;
+		enemySnakeHead.move(dirX2*SCALE, dirY2*SCALE);
+	}
 }
-void snakeOutOfBounds()
+void snakeOutOfBounds(bool multiplayer)
 {
 	if (snakeHead.getPosition().x < 0)
 	{
@@ -455,5 +598,24 @@ void snakeOutOfBounds()
 	if (snakeHead.getPosition().y > 575+HUD_SPACE)
 	{
 		snakeHead.setPosition(snakeHead.getPosition().x, 0+HUD_SPACE);
+	}
+	if (multiplayer == true)
+	{
+		if (enemySnakeHead.getPosition().x < 0)
+		{
+			enemySnakeHead.setPosition(775, enemySnakeHead.getPosition().y);
+		}
+		if (enemySnakeHead.getPosition().x > 775)
+		{
+			enemySnakeHead.setPosition(0, enemySnakeHead.getPosition().y);
+		}
+		if (enemySnakeHead.getPosition().y < 0 + HUD_SPACE)
+		{
+			enemySnakeHead.setPosition(enemySnakeHead.getPosition().x, 575 + HUD_SPACE);
+		}
+		if (enemySnakeHead.getPosition().y > 575 + HUD_SPACE)
+		{
+			enemySnakeHead.setPosition(enemySnakeHead.getPosition().x, 0 + HUD_SPACE);
+		}
 	}
 }
