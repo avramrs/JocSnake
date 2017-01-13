@@ -8,7 +8,8 @@
 using namespace std;
 
 
-fstream scoreboardFile;
+ifstream scoreboardFile;
+ofstream scoreboardFileOutput;
 ifstream gsaf;
 short  HUD_SPACE = 50;
 
@@ -21,7 +22,11 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(800, 600 + HUD_SPACE), "Snake");						//Window
 	window.setVerticalSyncEnabled(true);
-
+	/*sf::Texture tileTexture;
+	if (!texture.loadFromFile())
+	{
+		
+	}*/
 
 	srand(time(NULL));
 
@@ -75,11 +80,22 @@ int main()
 	enemySnakeHead.setPosition(800, 600);
 	enemySnakeHead.setFillColor(sf::Color::Red);
 	////////////////////SCOREBOARD/////////
-	string line;
+	std::string scoreboardVector[12];
+	std::string line;
 	sf::Text scoreboardFileText("", gameFont);
 	scoreboardFileText.setFillColor(sf::Color::White);
 	scoreboardFileText.setPosition(100, 50);
 	short linePosition = 50;
+	sf::Text newHighscoreText("NEW HIGHSCORE", gameFont);
+	sf::Text newHighscoreText2("ENTER YOUR NAME", gameFont);
+	newHighscoreText2.setPosition(200, 250);
+	newHighscoreText2.setFillColor(sf::Color::White);
+	newHighscoreText.setPosition(200, 200);
+	newHighscoreText.setFillColor(sf::Color::White);
+	std::string enteredText;
+	sf::Text newName("",gameFont);
+	newName.setPosition(200, 300);
+	newName.setFillColor(sf::Color::White);
 	///////////////////??????????/////////////
 	sf::Text r3a0roe("", gameFont);
 	r3a0roe.setFillColor(sf::Color::Yellow);
@@ -187,6 +203,59 @@ int main()
 			window.display();
 		}
 ////////////////////////////////////////////////SCOREBOARD//////////////////////////////////////////////////
+		else if (newHighScore == true)
+		{
+			sf::Event event;
+			while (window.pollEvent(event))
+			{
+				if (event.type == sf::Event::TextEntered)
+				{
+					if (event.text.unicode < 128 && !sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+					{
+						enteredText += static_cast<char>(event.text.unicode);
+						newName.setString(enteredText);
+					}
+				}
+				if (event.type == sf::Event::Closed)
+					window.close();
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+			{
+				newHighScore = 0;
+				menu = 1;
+				scoreboardFile.open("scoreboard.txt");
+				for (int i = 0; i < scoreboardLineCount; i++)
+				{
+					getline(scoreboardFile, line);
+					scoreboardVector[i] = line;
+					if (i+1 == newHighScoreLine)
+					{
+						scoreboardVector[i] = enteredText;
+						i++;
+						scoreString = to_string(score);
+						scoreboardVector[i]=scoreString;
+						score = 0;
+					}
+				}
+				scoreboardFile.close();
+				scoreboardFileOutput.open("scoreboard.txt");
+				for (int i = 0; i < scoreboardLineCount; i++)
+				{
+					line = scoreboardVector[i];
+					scoreboardFileOutput << line<<endl;
+				}
+				scoreboardFileOutput.close();
+				enteredText.assign("");
+				newName.setString(enteredText);
+			}
+
+			window.clear();
+			window.draw(newHighscoreText);
+			window.draw(newHighscoreText2);
+			window.draw(newName);
+			window.display();
+		}
+/////////////////////////////////////////////////////////////////
 		else if (scoreboard==true)
 		{
 			if (scoreboardOpened == false) 
@@ -195,8 +264,9 @@ int main()
 				window.clear();
 				if (scoreboardFile.is_open())
 				{
-					while (getline(scoreboardFile, line))
+					for(int i=0;i<scoreboardLineCount;i++)
 					{
+						getline(scoreboardFile, line);
 						scoreboardFileText.setString(line);
 						window.draw(scoreboardFileText);
 						linePosition += 50;
@@ -209,7 +279,6 @@ int main()
 					window.draw(scoreboardFileText);
 				}
 				scoreboardFile.close();
-				scoreboardFile.clear();
 				window.display();
 			}
 			sf::Event event;
@@ -337,8 +406,6 @@ int main()
 						{
 							item.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
 							set = false;
-
-
 						}
 					}
 				}
@@ -362,7 +429,6 @@ int main()
 					{
 						food.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
 						set = true;
-
 					}
 				}
 			}
@@ -395,6 +461,7 @@ int main()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))							//CHEAT
 		{
 			tailLen++;
+			score += 100;
 		}
 		////////////////////////////////////////////////////////////1FRAME////////////////////////////////////////////////////////////
 		if (elapsed.asMilliseconds() > 100)
@@ -413,7 +480,7 @@ int main()
 		if (gameTimer > timeSet)
 		{
 			itemTimer++;
-			std::cout << itemTimer << std::endl;
+			cout << score << endl;
 			snakeMove(multiplayer);
 			snakeOutOfBounds(multiplayer);
 			gameTimer = 0;
@@ -423,14 +490,14 @@ int main()
 				if (tail[i].getGlobalBounds() == snakeHead.getGlobalBounds())
 				{
 					alive = 0;
-					menu = 1;
+					if(multiplayer==true)
 					winner = 2;//player2 Wins;
 				}
 				if (enemySnakeHead.getGlobalBounds() == tail[i].getGlobalBounds())
 				{
+					if(multiplayer==true)
 					winner = 1;//player1 Wins;
 					alive = 0;
-					menu = 1;
 				}
 			}
 			if (multiplayer)
@@ -440,21 +507,18 @@ int main()
 					if (enemyTail[i].getGlobalBounds() == enemySnakeHead.getGlobalBounds())
 					{
 						alive = 0;
-						menu = 1;
 						winner = 1;//player1 Wins;
 					}
 					if (snakeHead.getGlobalBounds() == enemyTail[i].getGlobalBounds())
 					{
 						winner = 2;//player2 Wins;
 						alive = 0;
-						menu = 1;
 					}
 				}
 			}
 			if (snakeHead.getGlobalBounds() == enemySnakeHead.getGlobalBounds())
 			{
 				alive = 0;
-				menu = 1;
 				winner = 3;
 			}
 		}
@@ -523,7 +587,28 @@ int main()
 		}
 		if (alive == 0)
 		{
-			score = 0;
+			scoreboardFile.open("scoreboard.txt");
+			for (int i = 0; i < scoreboardLineCount; i++)
+			{
+				getline(scoreboardFile, line);
+				if (i%2==0&&i!=0)
+				{
+					currentScore = stoll (line);
+					if (currentScore < score)
+					{
+						newHighScore = 1;
+						newHighScoreLine = i;
+						i = scoreboardLineCount;
+					}
+				}
+				
+			}
+			scoreboardFile.close();
+			if (newHighScore != 1)
+			{
+				menu = 1;
+				score = 0;
+			}
 			timer = 0;
 			snakeHead.setPosition(0, HUD_SPACE);
 			tailLen = 0;
@@ -542,8 +627,9 @@ int main()
 			}
 		}
 	}
+	
 /////////////////////????////////////////////////////
-	else if (shop)
+	else if (shop==true)
 	{
 		window.clear();
 		window.draw(r3a0roe);
