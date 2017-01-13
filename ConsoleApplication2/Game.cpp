@@ -23,11 +23,9 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(800, 600 + HUD_SPACE), "Snake");						//Window
 	window.setVerticalSyncEnabled(true);
 	/*sf::Texture tileTexture;
-	if (!texture.loadFromFile())
-	{
-		
-	}*/
-
+	if (!tileTexture.loadFromFile("Grass.png"))
+		cout << "ERROR";
+	tile.setTexture(&tileTexture);*/
 	srand(time(NULL));
 
 	HUD.setSize(sf::Vector2f(800, 50));
@@ -119,7 +117,6 @@ int main()
 					selectedLine--;
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && selectedLine != 4)
 					selectedLine++;
-
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
 				{
 					switch (selectedLine)
@@ -361,14 +358,14 @@ int main()
 			item.setPosition(-10, -10);
 			switch (itemType) {
 			case 0: {
-				timeSet = 100;
+				timeSet = 75;
 				itemTimer = 0;
 				std::cout << "SPEED UP";
 				break;
 			}
 			case 1:
 			{
-				timeSet = 250;
+				timeSet = 300;
 				itemTimer = 0;
 				std::cout << "SLOW DOWN";
 				break;
@@ -394,6 +391,24 @@ int main()
 					itemType = rand() % 2;
 				else
 					itemType = rand() % 3;
+				switch (itemType)
+				{
+				case 0:
+				{
+					item.setFillColor(sf::Color::Black);
+					break;
+				}
+				case 1:
+				{
+					item.setFillColor(sf::Color::Blue);
+					break;
+				}
+				case 2:
+				{
+					item.setFillColor(sf::Color::Yellow);
+					break;
+				}
+				}
 				item.setPosition((rand() % WIDTH)*SCALE, (rand() % HEIGHT)*SCALE + HUD_SPACE);
 				set = false;
 				while (set != true)
@@ -480,7 +495,6 @@ int main()
 		if (gameTimer > timeSet)
 		{
 			itemTimer++;
-			cout << score << endl;
 			snakeMove(multiplayer);
 			snakeOutOfBounds(multiplayer);
 			gameTimer = 0;

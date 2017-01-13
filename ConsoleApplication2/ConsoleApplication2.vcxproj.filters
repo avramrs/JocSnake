@@ -38,4 +38,12 @@
   <ItemGroup>
     <Font Include="8-BIT WONDER.TTF" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="snakeHead.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

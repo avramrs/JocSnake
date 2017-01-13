@@ -166,6 +166,10 @@
   <ItemGroup>
     <Font Include="8-BIT WONDER.TTF" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Grass.png" />
+    <Image Include="snakeHead.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
